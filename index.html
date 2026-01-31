@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verdad o Reto Pro</title>
+    
+    <!-- CSS local -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Iconos locales (alternativa a Font Awesome) -->
+    <style>
+        /* Iconos básicos como fallback */
+        .fa { display: inline-block; }
+        .fa-arrow-left:before { content: "←"; }
+        .fa-play:before { content: "▶"; }
+        .fa-user-plus:before { content: "+👤"; }
+        .fa-dice:before { content: "🎲"; }
+        .fa-users:before { content: "👥"; }
+        .fa-comment-dots:before { content: "💬"; }
+        .fa-fire:before { content: "🔥"; }
+        .fa-history:before { content: "📜"; }
+        .fa-cog:before { content: "⚙"; }
+        .fa-forward:before { content: "⏭"; }
+        .fa-user-friends:before { content: "👫"; }
+        .fa-check:before { content: "✓"; }
+        .fa-times:before { content: "✗"; }
+        .fa-trash:before { content: "🗑"; }
+        .fa-redo:before { content: "🔄"; }
+        .fa-mars:before { content: "♂"; }
+        .fa-venus:before { content: "♀"; }
+        .fa-exclamation-triangle:before { content: "⚠"; }
+        .fa-flag:before { content: "🏁"; }
+        .fa-volume-up:before { content: "🔊"; }
+        .fa-volume-mute:before { content: "🔇"; }
+        .fa-exclamation-circle:before { content: "❕"; }
+        .fa-check-circle:before { content: "✅"; }
+        .fa-info-circle:before { content: "ℹ"; }
+    </style>
+    
+    <!-- Google Fonts (opcional, funciona sin ellas) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Estilos de respaldo si fallan las fuentes -->
+    <style>
+        @font-face {
+            font-family: 'BackupMarker';
+            src: local('Comic Sans MS'), local('Arial Rounded MT Bold');
+        }
+        
+        .titulo-main {
+            font-family: 'Permanent Marker', 'BackupMarker', cursive;
+        }
+        
+        .titulo-pantalla {
+            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <!-- Contenedor principal del juego -->
+    <div class="game-container">
+        <!-- Pantalla 1: Selección de Nivel -->
+        <div id="p1" class="screen active">
+            <h1 class="titulo-main">VERDAD O RETO</h1>
+            <div id="menu-niveles" class="menu-niveles"></div>
+            <div class="stats">
+                <p><i class="fas fa-history"></i> Jugadores guardados: <span id="saved-count">0</span></p>
+                <p><i class="fas fa-gamepad"></i> Partidas jugadas: <span id="games-count">0</span></p>
+            </div>
+        </div>
+
+        <!-- Pantalla 2: Configuración de Jugadores -->
+        <div id="p2" class="screen">
+            <button class="btn-back" onclick="irA(1)"><i class="fas fa-arrow-left"></i></button>
+            <h2 id="lvl-sel-title" class="titulo-pantalla"></h2>
+            <div id="round-display" class="round-display">Ronda: <span id="current-round">1</span></div>
+            <div id="lista-nombres" class="lista-nombres"></div>
+            <button onclick="addInput()" class="btn-add-player">
+                <i class="fas fa-user-plus"></i> Añadir Jugador
+            </button>
+            <button class="btn-ready" onclick="checkStart()">
+                <i class="fas fa-play"></i> ¡COMENZAR!
+            </button>
+        </div>
+
+        <!-- Pantalla 3: Juego Principal -->
+        <div id="p3" class="screen">
+            <button class="btn-back" onclick="irA(2)"><i class="fas fa-arrow-left"></i></button>
+            <div class="player-info">
+                <h2 id="player-turn" class="titulo-pantalla"></h2>
+                <div class="player-stats">
+                    <span><i class="fas fa-dice"></i> Ronda: <span id="current-round-game">1</span></span>
+                    <span><i class="fas fa-users"></i> Jugador: <span id="player-position">1</span>/<span id="total-players">0</span></span>
+                </div>
+            </div>
+            
+            <div id="game-ui" class="game-ui">
+                <div class="choice-buttons">
+                    <button class="btn-verdad" onclick="getFrase('VERDAD')">
+                        <i class="fas fa-comment-dots"></i> VERDAD
+                    </button>
+                    <button class="btn-reto" onclick="getFrase('RETO')">
+                        <i class="fas fa-fire"></i> RETO
+                    </button>
+                </div>
+                <div class="history-buttons">
+                    <button class="btn-history" onclick="showHistory()">
+                        <i class="fas fa-history"></i> Historial
+                    </button>
+                    <button class="btn-settings" onclick="showSettings()">
+                        <i class="fas fa-cog"></i> Config
+                    </button>
+                </div>
+            </div>
+            
+            <div id="frase-ui" class="frase-ui">
+                <div class="frase-header">
+                    <span id="frase-type" class="frase-type"></span>
+                    <span class="frase-level">Nivel <span id="current-level">1</span></span>
+                </div>
+                <div id="txt-frase" class="frase-box"></div>
+                <div class="frase-actions">
+                    <button class="btn-next" onclick="nextTurn()">
+                        <i class="fas fa-forward"></i> SIGUIENTE
+                    </button>
+                    <button class="btn-change" onclick="irA(2)">
+                        <i class="fas fa-user-friends"></i> CAMBIAR JUGADORES
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Advertencia -->
+        <div id="advertencia" class="advertencia-overlay">
+            <div class="adv-caja">
+                <div id="adv-contenido"></div>
+                <div class="adv-actions">
+                    <button class="btn-adv confirm" onclick="confirmarNivel()">
+                        <i class="fas fa-check"></i> SEGUIR
+                    </button>
+                    <button class="btn-adv cancel" onclick="cerrarAdv()">
+                        <i class="fas fa-times"></i> REGRESAR
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Historial -->
+        <div id="history-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-history"></i> Historial del Juego</h3>
+                    <button class="modal-close" onclick="closeModal('history-modal')">&times;</button>
+                </div>
+                <div id="history-content" class="modal-body">
+                    <!-- Historial se llenará aquí -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Configuración -->
+        <div id="settings-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-cog"></i> Configuración</h3>
+                    <button class="modal-close" onclick="closeModal('settings-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="sound-toggle" checked> Sonidos
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="repeat-toggle"> Evitar frases repetidas
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <button class="btn-clear" onclick="clearHistory()">
+                            <i class="fas fa-trash"></i> Limpiar Historial
+                        </button>
+                    </div>
+                    <div class="setting-item">
+                        <button class="btn-reset" onclick="resetGame()">
+                            <i class="fas fa-redo"></i> Reiniciar Estadísticas
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
