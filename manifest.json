@@ -1,0 +1,11 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "normal",
+  "name": "VoRAPP",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "VoR",
+  "start_url": "/",
+  "theme_color": "#ffffff"
+}
